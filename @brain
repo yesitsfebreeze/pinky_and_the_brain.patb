@@ -1,0 +1,10 @@
+<!-- main-brain-origin-source-url: https://github.com/yesitsfebreeze/pinky_and_the_brain -->
+# Pinky & The Brain
+
+Persistent cross-project AI memory system for AI coding assistants. Each project gets a companion .patb brain repo that stores decisions, pitfalls, conventions, and cross-project context.
+
+```yaml
+SKILL_URL: https://raw.githubusercontent.com/yesitsfebreeze/pinky-and-the-brain/refs/heads/main/SKILL.md
+MAX_NOTES: 512
+MIN_RATING: 30
+```
