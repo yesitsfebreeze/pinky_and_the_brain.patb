@@ -10,6 +10,11 @@
 <!-- sources: SETUP.md -->
 SETUP.md handles both INSTALL and UPDATE modes; RESSURECT=TRUE forces UPDATE path re-installing from scratch while preserving user content (thoughts.md, changes.md, tree.md, sync.md, @pinky linked repos).
 
+#### Use brain-local skill source path
+<!-- rating: 720 | created: 2026-03-09 | last_used: 2026-03-09 | concepts: skills, local-source, setup -->
+<!-- sources: SETUP.md, SKILL.md, skills/resync.md -->
+Skill and command dispatch should read local files from ~/.ptba/@brain (with SOURCE_ROOT self-host override) and avoid RAW_URL fetch fallbacks for skill content/version checks.
+
 #### Selection pass — relevance formula
 <!-- rating: 700 | created: 2026-03-09 | last_used: 2026-03-09 | concepts: context-loading, selection, relevance -->
 <!-- sources: SKILL.md -->
@@ -20,6 +25,11 @@ Relevance formula for context selection: `rating + recency_bonus(+20 if last_use
 <!-- sources: SKILL.md -->
 SKILL.md local copy is just a bootstrap pointer with a FETCH and EXECUTE directive. Version check compares install.version and skill.version line 2 (timestamp) against remote to trigger auto-update.
 
+#### After Reasoning scoring adjusts note ratings
+<!-- rating: 700 | created: 2026-03-09 | last_used: 2026-03-09 | concepts: rating, memory-lifecycle, reasoning -->
+<!-- sources: SKILL.md -->
+After answering any query that loaded notes, run a mandatory scoring pass: notes used in response +300, confirmed by code +500, loaded but unreferenced -100, contradicted -800. Clamp to 0–1000. Remove notes below MIN_RATING. Update `last_used`. Re-sort and commit immediately.
+
 #### Prune pass at startup
 <!-- rating: 650 | created: 2026-03-09 | last_used: 2026-03-09 | concepts: prune, memory-lifecycle -->
 <!-- sources: SKILL.md -->
@@ -29,6 +39,16 @@ At startup, notes with `rating < PRUNE_THRESHOLD` are deleted from thoughts.md a
 <!-- rating: 650 | created: 2026-03-09 | last_used: 2026-03-09 | concepts: concept-graph, tagging, bfs -->
 <!-- sources: SKILL.md -->
 Each note can carry 1-3 concept tags in the `concepts` field of its metadata comment. concepts.md is auto-generated (never edit manually) — aggregates all tags with co-occurrence `related` links. Queries do BFS expansion up to CONTEXT_DEPTH hops on the concept graph before text scoring.
+
+#### @pinky STATUS line persists plan/play mode
+<!-- rating: 650 | created: 2026-03-09 | last_used: 2026-03-09 | concepts: plan, workflow, pinky -->
+<!-- sources: @pinky, SKILL.md -->
+@pinky can contain a `STATUS: plan|play|idle` line. On session start, restore the saved mode: STATUS=plan → resume plan mode; STATUS=play → resume play mode. Helpers: `WRITE STATUS {mode}` (upsert the line), `CLEAR STATUS` (remove it). Only URL lines (http/git@) count as linked repos — skip STATUS and other non-URL lines.
+
+#### Version check at session start triggers auto-update
+<!-- rating: 650 | created: 2026-03-09 | last_used: 2026-03-09 | concepts: version-check, install, skill -->
+<!-- sources: SKILL.md -->
+At session start, fetch remote install.version and skill.version. Compare line 2 (timestamp) against {BRAIN_ROOT}/install.version and ~/.agents/skills/patb/skill.version. If either local file is missing or any remote timestamp is newer, fetch and execute SETUP.md in UPDATE mode to auto-update.
 
 #### @brain YAML config keys (full set)
 <!-- rating: 600 | created: 2026-03-08 | last_used: 2026-03-09 | concepts: config, brain-repo -->
@@ -54,21 +74,6 @@ The `@commit` command groups changed files by scope (feature, fix, refactor, doc
 <!-- rating: 550 | created: 2026-03-08 | last_used: 2026-03-09 | concepts: identity, slug -->
 <!-- sources: SKILL.md -->
 SLUG derivation: last URL path segment → strip .git → lowercase → replace non-alphanum (except - _) with -. BRAIN_ROOT = ~/.patb/{SLUG}.patb/. BRAIN_REPO_URL priority: PATB_URL from @brain → @pinky line 1 → derived {SOURCE_REPO_URL}.patb.
-
-#### After Reasoning scoring adjusts note ratings
-<!-- rating: 700 | created: 2026-03-09 | last_used: 2026-03-09 | concepts: rating, memory-lifecycle, reasoning -->
-<!-- sources: SKILL.md -->
-After answering any query that loaded notes, run a mandatory scoring pass: notes used in response +300, confirmed by code +500, loaded but unreferenced -100, contradicted -800. Clamp to 0–1000. Remove notes below MIN_RATING. Update `last_used`. Re-sort and commit immediately.
-
-#### @pinky STATUS line persists plan/play mode
-<!-- rating: 650 | created: 2026-03-09 | last_used: 2026-03-09 | concepts: plan, workflow, pinky -->
-<!-- sources: @pinky, SKILL.md -->
-@pinky can contain a `STATUS: plan|play|idle` line. On session start, restore the saved mode: STATUS=plan → resume plan mode; STATUS=play → resume play mode. Helpers: `WRITE STATUS {mode}` (upsert the line), `CLEAR STATUS` (remove it). Only URL lines (http/git@) count as linked repos — skip STATUS and other non-URL lines.
-
-#### Version check at session start triggers auto-update
-<!-- rating: 650 | created: 2026-03-09 | last_used: 2026-03-09 | concepts: version-check, install, skill -->
-<!-- sources: SKILL.md -->
-At session start, fetch remote install.version and skill.version. Compare line 2 (timestamp) against {BRAIN_ROOT}/install.version and ~/.agents/skills/patb/skill.version. If either local file is missing or any remote timestamp is newer, fetch and execute SETUP.md in UPDATE mode to auto-update.
 
 #### Context Assembly order after load passes
 <!-- rating: 550 | created: 2026-03-09 | last_used: 2026-03-09 | concepts: context-loading, selection -->
